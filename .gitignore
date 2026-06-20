@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+.idea/
+benchmark_*.png
+mumu_sdk_snapshot.png
+MuMu*.pdf
