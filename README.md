@@ -199,6 +199,28 @@ mumu.all().power.shutdown()
 
 ---
 
+## 去遥测 / Telemetry Cleanup
+
+MuMu Player Global 内置了大量遥测、广告和崩溃上报组件。本项目提供了完整的清理方案：
+
+- [遥测清理指南 (docs/telemetry_cleanup_guide.md)](docs/telemetry_cleanup_guide.md) — 详细的遥测组件清单、上报 URL 列表及手动清理步骤
+- [一键清理脚本 (scripts/mumu_cleanup.ps1)](scripts/mumu_cleanup.ps1) — PowerShell 自动化脚本，以管理员身份运行即可
+
+### 快速使用
+
+以管理员身份打开 PowerShell，执行：
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+& ".\scripts\mumu_cleanup.ps1"
+```
+
+脚本会自动完成：停止进程/服务 → 重命名遥测 DLL/EXE → 删除广告消息中心 → 清理崩溃残留 → 清除设备标识 → 添加 hosts 屏蔽 → 清理远程遥测组件。
+
+所有重命名操作均使用 `.bak` 后缀，可随时恢复。
+
+---
+
 ## 要求
 
 - MuMu Player Global >= 4.0.0
