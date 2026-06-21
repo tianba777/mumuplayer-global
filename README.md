@@ -201,12 +201,60 @@ mumu.all().power.shutdown()
 
 ## 去遥测 / Telemetry Cleanup
 
-MuMu Player Global 内置了大量遥测、广告和崩溃上报组件。本项目提供了完整的清理方案：
+MuMu Player Global 内置了大量遥测、广告和崩溃上报组件（15+ 个上报域名）。本项目提供了集成的 Python API 清理方案。
 
-- [遥测清理指南 (docs/telemetry_cleanup_guide.md)](docs/telemetry_cleanup_guide.md) — 详细的遥测组件清单、上报 URL 列表及手动清理步骤
-- [一键清理脚本 (scripts/mumu_cleanup.ps1)](scripts/mumu_cleanup.ps1) — PowerShell 自动化脚本，以管理员身份运行即可
+### Python API 方式（推荐）
 
-### 快速使用
+```python
+from mumu import Mumu
+
+mumu = Mumu()
+
+# 一键清理全部遥测（需管理员权限）
+mumu.cleanup.run_all()
+```
+
+也可以分步执行：
+
+```python
+cleanup = mumu.cleanup
+
+# 1. 停止遥测相关进程和服务
+cleanup.stop_processes()
+
+# 2. 禁用遥测 DLL（nemu-statistics.dll, sentry.dll）
+cleanup.disable_telemetry_dlls()
+
+# 3. 禁用遥测 EXE（统计上报、崩溃上报、Crashpad、更新器）
+cleanup.disable_telemetry_exes()
+
+# 4. 删除广告消息中心
+cleanup.remove_ad_message_center()
+
+# 5. 清理崩溃残留文件
+cleanup.clean_crash_files()
+
+# 6. 清除设备标识（fcountData.ini）
+cleanup.clean_device_id()
+
+# 7. 清除所有 VM 的遥测时间戳
+cleanup.clean_vm_report_timestamps()
+
+# 8. 禁用远程遥测组件（不影响本地多开）
+cleanup.disable_remote_telemetry()
+
+# 9. Hosts 屏蔽遥测域名（双重保险，需管理员权限）
+cleanup.block_telemetry_hosts()
+```
+
+恢复所有被禁用的组件：
+
+```python
+# 将所有 .bak 文件恢复原名
+mumu.cleanup.restore_all()
+```
+
+### PowerShell 脚本方式
 
 以管理员身份打开 PowerShell，执行：
 
@@ -215,9 +263,30 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 & ".\scripts\mumu_cleanup.ps1"
 ```
 
-脚本会自动完成：停止进程/服务 → 重命名遥测 DLL/EXE → 删除广告消息中心 → 清理崩溃残留 → 清除设备标识 → 添加 hosts 屏蔽 → 清理远程遥测组件。
+### 参考文档
 
-所有重命名操作均使用 `.bak` 后缀，可随时恢复。
+- [遥测组件完整清单 (docs/telemetry_cleanup_guide.md)](docs/telemetry_cleanup_guide.md) — 遥测 DLL/EXE 清单、20 个上报 URL、手动清理步骤
+- [PowerShell 一键脚本 (scripts/mumu_cleanup.ps1)](scripts/mumu_cleanup.ps1) — 适合不用 Python 的场景
+
+### 屏蔽的遥测域名（15 个）
+
+| 域名 | 用途 |
+|------|------|
+| `shence-api.mumu.163.com` | 神策行为分析 |
+| `report-api.mumuplayer.com` | 统计收集 |
+| `report.mumu.nie.netease.com` | 统计收集（内网） |
+| `api.mumuglobal.com` | 主 API / 崩溃上报 |
+| `user-center.mumuplayer.com` | 用户中心 |
+| `pro-api.mumuplayer.com` | Pro API |
+| `feedback-system.webapp.easebar.com` | 反馈系统 |
+| `fcount-api.webapp.163.com` | 计数/指纹 |
+| `fcount-api.webapp.easebar.com` | 计数/指纹（海外） |
+| `fp.ps.netease.com` | 设备指纹 |
+| `event.sc.gearupportal.com` | 事件分析 |
+| `adl.guinfra.com` | 广告投放 |
+| `api-event.nrd.nie.163.com` | NRD 事件上报 |
+| `api.nrd.nie.163.com` | NRD 服务 |
+| `api-pro.mumu.163.com` | NRD Pro |
 
 ---
 

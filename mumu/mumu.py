@@ -23,6 +23,7 @@ from mumu.api.network.Network import Network
 from mumu.api.permission.Permission import Permission
 from mumu.api.screen.screen import Screen
 from mumu.api.setting.setting import Setting
+from mumu.cleanup import Cleanup
 from mumu.utils import utils
 
 
@@ -287,3 +288,13 @@ class Mumu:
             ) from exc
 
         return Gui(self.generate_utils())
+
+    @property
+    def cleanup(self) -> Cleanup:
+        manager_dir = os.path.dirname(self.__mumu_manager)
+        parent_name = os.path.basename(manager_dir).lower()
+        if parent_name in ("shell", "nx_main"):
+            install_root = os.path.dirname(manager_dir)
+        else:
+            install_root = manager_dir
+        return Cleanup(install_root)
